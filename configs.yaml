@@ -1,4 +1,4 @@
-github_repo: "dsc-courses/dsc80-2024-wi-grades.git" # <organization/personal account name>/<repo name>.git
+github_repo: "git@github.com:dsc-courses/dsc80-2024-sp-grades.git" # <organization/personal account name>/<repo name>.git
 
 gradescope_credentials:
   email: "ardas@ucsd.edu"
