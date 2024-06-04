@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+chmod 400 ./source/id_rsa
+cp ./source/config ~/.ssh/config
+git clone git@github.com:dsc-courses/dsc80-2024-wi-grades.git > /autograder/results/log.txt
+rm ./source/id_rsa
+bash dsc80-2024-wi-grades/run
