@@ -17,7 +17,7 @@ sys.path.append("${0%/*}")
 
 df = pd.read_csv("./data/grades_for_grade_report.csv").set_index("SID").loc[sid]
 
-stream = open("../configs.yaml", "r")
+stream = open("./configs.yaml", "r")
 dictionary = yaml.safe_load(stream)
 
 # Data Loading Fields
