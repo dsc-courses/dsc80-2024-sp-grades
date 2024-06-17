@@ -195,19 +195,22 @@ def output_discussion(df, gs_output):
 
 
 def output_lab_grades(df, gs_output):
-    lab_score = df["Lab Total"]
-    output = [f"Labs are worth 20% of your grade. There are {MAX_LABS} labs total.\n"]
+    lab_score = df["Lab Average"]
+    lab_weight = int(ASSIGNMENT_WEIGHTS["lab"] * 100)
+    output = [
+        f"Labs are worth {lab_weight}% of your grade. There are {MAX_LABS} labs total.\n"
+    ]
     for lab in range(1, MAX_LABS + 1):
         if lab <= NUM_LABS:
             output = np.append(output, make_assignment_string(f"Lab {lab}"))
         else:
             output = np.append(output, f"Lab {lab}: 0 (not yet released or graded)")
-    output = np.append(output, [f"Overall: {even_round_str(df.loc['Lab Total'])}"])
+    output = np.append(output, [f"Overall: {even_round_str(df.loc['Lab Average'])}"])
     gs_output["tests"].append(
         {
             "name": "Labs",
-            "score": float(lab_score) * 20,
-            "max_score": 20,
+            "score": float(lab_score) * lab_weight,
+            "max_score": lab_weight,
             "output": "\n".join(output),
             "visibility": "after_published",
         }
@@ -215,9 +218,11 @@ def output_lab_grades(df, gs_output):
 
 
 def output_project_grades(df, gs_output):
-    project_score = df.loc["Project Total"]
+    project_score = df.loc["Project Average"]
+    project_weight = int(ASSIGNMENT_WEIGHTS["project"] * 100)
+    each_project_weight = int(project_weight / 5)
     output = [
-        f"Projects are worth 25% of your grade. There are {MAX_PROJECTS} projects. There are no drops. \nProjects 1, 2, and 3 are each worth 6% of your overall grade, and Project 4 is worth 12%, for a total of 30%.\n"
+        f"Projects are worth {project_weight}% of your grade. There are {MAX_PROJECTS} projects. There are no drops. \nProjects 1, 2, and 3 are each worth {each_project_weight}% of your overall grade, and Project 4 is worth {2*each_project_weight}%, for a total of {project_weight}%.\n"
     ]
     for project in range(1, MAX_PROJECTS + 1):
         # if project == 4:
@@ -234,12 +239,14 @@ def output_project_grades(df, gs_output):
                 output, f"Project {project_str}: 0 (not yet released or graded)"
             )
 
-    output = np.append(output, [f"Overall: {even_round_str(df.loc['Project Total'])}"])
+    output = np.append(
+        output, [f"Overall: {even_round_str(df.loc['Project Average'])}"]
+    )
     gs_output["tests"].append(
         {
             "name": "Projects",
-            "score": float(project_score) * 25,
-            "max_score": 25,
+            "score": float(project_score) * project_weight,
+            "max_score": project_weight,
             "output": "\n".join(output),
             "visibility": "after_published",
         }
