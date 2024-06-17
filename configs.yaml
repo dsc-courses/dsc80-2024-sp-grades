@@ -6,20 +6,20 @@ gradescope_credentials:
 
 course_info:
   course_id: 759147
-  assignment_id: 4078318
+  assignment_id: 4549419
   roster_path: "../data/DSC_80_Spring_2024_grades.csv"
 
 data_path:
   grades_filename: "../data/DSC_80_Spring_2024_grades.csv"
 
 labs:
-  num_labs: 7 # number of labs to include for the current report
+  num_labs: 9 # number of labs to include for the current report
   max_labs: 9 # total number of labs in this class
 
 projects:
-  num_projects: 3
+  num_projects: 4
   max_projects: 4
-  num_checkpoints: 3
+  num_checkpoints: 5
   max_checkpoints: 5
 
 exams:
@@ -30,7 +30,7 @@ exams:
       - "B"
     bonus: 0
   final:
-    enabled: false
+    enabled: true
     versions:
       - "A"
       - "B"
@@ -39,7 +39,8 @@ exams:
     container_path: "../data/Final_Exam_Version_Set_Scores.zip"
 
 discussions:
-  num_discussions_and_lecture_attendence_required: 8
+  num_discussions_attendence_required: 8
+  num_lecture_attendence_required: 16
 
 drop_policy:
   num_drops: 1
@@ -57,8 +58,8 @@ discussion_assignment_weights:
   lab: 0.20
   project: 0.25
   project_checkpoint: 0.05
-  midterm_exam: 0.185
-  final_exam: 0.285
+  midterm_exam: 0.175
+  final_exam: 0.275
   discussion: 0.05
 
 extra_credit:
