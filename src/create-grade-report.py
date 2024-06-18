@@ -147,7 +147,7 @@ def make_assignment_string(assignment):
 
 
 def output_discussion(df, gs_output):
-    discussion_weight = df["discussion_offset"] + df["lecture_offset"] * 100
+    discussion_weight = (df["discussion_offset"] + df["lecture_offset"]) * 100
 
     discussion_attended = df["disc_count"]
     lecture_attended = df["lecture_count"]
