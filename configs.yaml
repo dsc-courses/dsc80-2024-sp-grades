@@ -55,21 +55,25 @@ assignment_weights:
   final_exam: 0.30
   discussion: 0.00
 
-discussion_or_lecture_assignment_weights:
-  lab: 0.20
-  project: 0.25
-  project_checkpoint: 0.05
-  midterm_exam: 0.175
-  final_exam: 0.275
-  discussion: 0.05
+# discussion_or_lecture_assignment_weights:
+#   lab: 0.20
+#   project: 0.25
+#   project_checkpoint: 0.05
+#   midterm_exam: 0.175
+#   final_exam: 0.275
+#   discussion: 0.05
 
-discussion_and_lecture_assignment_weights:
-  lab: 0.20
-  project: 0.25
-  project_checkpoint: 0.05
-  midterm_exam: 0.15
-  final_exam: 0.25
-  discussion: 0.1
+# discussion_and_lecture_assignment_weights:
+#   lab: 0.20
+#   project: 0.25
+#   project_checkpoint: 0.05
+#   midterm_exam: 0.15
+#   final_exam: 0.25
+#   discussion: 0.1
+
+max_discussion_offset: 0.05
+
+max_lecture_offset: 0.05
 
 extra_credit:
   overall: 0.00
