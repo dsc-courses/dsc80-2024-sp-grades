@@ -75,12 +75,6 @@ DROPS = NUM_DROPS > 0
 CURRENT_TOTAL_POSSIBLE_SCORE = df["Current Max Possible Score"].max()
 
 ASSIGNMENT_WEIGHTS = dictionary["assignment_weights"]
-DISCUSSION_OR_LECTURE_ASSIGNMENT_WEIGHTS = dictionary[
-    "discussion_or_lecture_assignment_weights"
-]
-DISCUSSION_AND_LECTURE_ASSIGNMENT_WEIGHTS = dictionary[
-    "discussion_and_lecture_assignment_weights"
-]
 
 DATE = current_dateTime
 
