@@ -31,8 +31,6 @@ dictionary = yaml.safe_load(stream)
 
 # Data Loading Fields
 GRADES_FILENAME = dictionary["data_path"]["grades_filename"]
-# ROSTER_FILENAME = 'sheets/dsc10-sp23-roster-final.csv'
-# ATTENDANCE_PATH = 'sheets/discussions'
 
 # Lab Fields
 NUM_LABS = dictionary["labs"]["num_labs"]
@@ -45,7 +43,6 @@ MAX_PROJECTS = dictionary["projects"]["max_projects"]
 NUM_PROJECT_CHECKPOINTS = dictionary["projects"]["num_checkpoints"]
 MAX_PROJECT_CHECKPOINTS = dictionary["projects"]["max_checkpoints"]
 
-
 # Midterm fields
 YES_MIDTERM = dictionary["exams"]["midterm"]["enabled"]
 MIDTERM_VERSIONS = dictionary["exams"]["midterm"]["versions"]
@@ -57,7 +54,6 @@ YES_FINAL = dictionary["exams"]["final"]["enabled"]
 FINAL_VERSIONS = dictionary["exams"]["final"]["versions"]
 FINAL_BONUS = dictionary["exams"]["final"]["bonus"]
 FINAL_HAS_BONUS = FINAL_BONUS > 0
-
 
 # Discussion Fields
 NUM_DISC_ATTENDENCE_REQUIRED = dictionary["discussions"][
@@ -79,11 +75,16 @@ DROPS = NUM_DROPS > 0
 CURRENT_TOTAL_POSSIBLE_SCORE = df["Current Max Possible Score"].max()
 
 ASSIGNMENT_WEIGHTS = dictionary["assignment_weights"]
-DISCUSSION_ASSIGNMENT_WEIGHTS = dictionary["discussion_assignment_weights"]
+DISCUSSION_OR_LECTURE_ASSIGNMENT_WEIGHTS = dictionary[
+    "discussion_or_lecture_assignment_weights"
+]
+DISCUSSION_AND_LECTURE_ASSIGNMENT_WEIGHTS = dictionary[
+    "discussion_and_lecture_assignment_weights"
+]
 
 DATE = current_dateTime
 
-DECIMAL_ROUND_PLACE = 4
+DECIMAL_ROUND_PLACE = 3
 
 
 def even_round_str(n, round_place=DECIMAL_ROUND_PLACE):
@@ -141,7 +142,7 @@ def make_assignment_string(assignment):
     exists = df.loc[assignment + " - Max Points"] != 0
     if exists:
         output = f'{assignment}: {even_round_str(df.loc[assignment + " Final Grade"])}'
-        output += f' ({df.loc[assignment]} / {df.loc[assignment + " - Max Points"]})'
+        output += f' ({even_round_str(df.loc[assignment + " Final Grade"] * df.loc[assignment + " - Max Points"])} / {df.loc[assignment + " - Max Points"]})'
         if DROPS and "Lab" in assignment:
             if assignment in df[f"Dropped {kind}s"]:
                 output += " [Dropped]"
@@ -152,40 +153,67 @@ def make_assignment_string(assignment):
 
 
 def output_discussion(df, gs_output):
-    if df["Used Discussion"]:
-        discussion_weight = int(DISCUSSION_ASSIGNMENT_WEIGHTS["discussion"] * 100)
+    if df["Used Discussion and Lecture"]:
+        discussion_weight = int(
+            DISCUSSION_AND_LECTURE_ASSIGNMENT_WEIGHTS["discussion"] * 100
+        )
+    elif df["Used Discussion or Lecture"]:
+        discussion_weight = int(
+            DISCUSSION_OR_LECTURE_ASSIGNMENT_WEIGHTS["discussion"] * 100
+        )
     else:
-        discussion_weight = 0
+        discussion_weight = int(ASSIGNMENT_WEIGHTS["discussion"] * 100)
+
     discussion_attended = df["disc_count"]
     lecture_attended = df["lecture_count"]
 
     output = [
-        f"Student who attended {NUM_DISC_ATTENDENCE_REQUIRED} discussions and {NUM_LECT_ATTENDENCE_REQUIRED} lectures will receive full discussion credit, worth 5% of your overall grade.\nIf you attend less discussion or lecture, discussion will be worth 0%, and your midterm and final exam grade will each be worth 2.5% more."
+        f"Students who attended {NUM_DISC_ATTENDENCE_REQUIRED} discussions will receive full discussion credit, worth 5% of your overall grade.\nStudents who attended  {NUM_LECT_ATTENDENCE_REQUIRED} lectures will will receive full discussion credit, worth 5% of your overall grade.\nIf you attend fewer discussions or lectures, your midterm and final exam grade will each be worth 2.5% more respectively."
     ]
+
     output = np.append(
         output,
         f"You attended {discussion_attended} discussions and {lecture_attended} lectures.",
     )
-    if df["Elgible for Discussion"]:
-        output = np.append(output, f"You are elgible for discussion credit.")
+
+    if (discussion_attended > NUM_DISC_ATTENDENCE_REQUIRED) and (
+        lecture_attended > NUM_LECT_ATTENDENCE_REQUIRED
+    ):
         output = np.append(
-            output,
-            f'Your grade with discussion is {even_round_str(df["Overall Score with Discussion"])}',
+            output, f"You are elgible for discussion and lecture credit."
         )
         output = np.append(
             output,
-            f'Your grade without discussion is {even_round_str(df["Overall Score without Discussion"])}',
+            f'Your grade with discussion and lecture credit is {even_round_str(df["Overall Score with Discussion and Lecture"])}',
         )
-        if df["Used Discussion"]:
-            output = np.append(output, f"Your score improved with discussion.")
-        else:
-            output = np.append(output, f"Your score did not improve with discussion.")
+        output = np.append(
+            output,
+            f'Your grade with discussion or lecture credit is {even_round_str(df["Overall Score with Discussion or Lecture"])}',
+        )
+        output = np.append(
+            output,
+            f'Your grade without discussion is {even_round_str(df["Overall Score without Discussion or Lecture"])}',
+        )
+    elif (discussion_attended > NUM_DISC_ATTENDENCE_REQUIRED) or (
+        lecture_attended > NUM_LECT_ATTENDENCE_REQUIRED
+    ):
+        output = np.append(output, f"You are elgible for discussion or lecture credit.")
+        output = np.append(
+            output,
+            f'Your grade with discussion or lecture credit is {even_round_str(df["Overall Score with Discussion or Lecture"])}',
+        )
+        output = np.append(
+            output,
+            f'Your grade without discussion is {even_round_str(df["Overall Score without Discussion or Lecture"])}',
+        )
     else:
-        output = np.append(output, f"You are not elgible for discussion credit.")
+        output = np.append(
+            output, f"You are not elgible for discussion or lecture credit."
+        )
 
     gs_output["tests"].append(
         {
-            "name": "Discussion",
+            "name": "Discussion and Lecture Attendance",
             "score": float(discussion_weight),
             "max_score": discussion_weight,
             "output": "\n".join(output),
@@ -290,13 +318,20 @@ def output_project_checkpoints(df, gs_output):
 
 
 def output_midterm_exam_grade(df, gs_output):
-    if df["Used Discussion"]:
-        midterm_weight = int(DISCUSSION_ASSIGNMENT_WEIGHTS["midterm_exam"] * 100)
+    if df["Used Discussion and Lecture"]:
+        midterm_weight = float(
+            DISCUSSION_AND_LECTURE_ASSIGNMENT_WEIGHTS["midterm_exam"] * 100
+        )
+    elif df["Used Discussion or Lecture"]:
+        midterm_weight = float(
+            DISCUSSION_OR_LECTURE_ASSIGNMENT_WEIGHTS["midterm_exam"] * 100
+        )
     else:
-        midterm_weight = int(ASSIGNMENT_WEIGHTS["midterm_exam"] * 100)
+        midterm_weight = float(ASSIGNMENT_WEIGHTS["midterm_exam"] * 100)
+
     midterm_score = df.loc["Midterm Average"]
 
-    output = [f"The Midterm Exam is worth {midterm_weight}% of your grade."]
+    output = [f"The Midterm Exam is worth {midterm_weight:.2f}% of your grade."]
     output = np.append(
         output,
         f'Midterm Pre-Redemption Score: {even_round_str(df.loc["Midterm Exam Grade"])} ({df.loc["Midterm"]} / {df.loc["Midterm - Max Points"]})',
@@ -352,12 +387,19 @@ def output_midterm_exam_grade(df, gs_output):
 
 
 def output_final_exam_grade(df, gs_output):
-    if df["Used Discussion"]:
-        final_exam_weight = int(DISCUSSION_ASSIGNMENT_WEIGHTS["final_exam"] * 100)
+    if df["Used Discussion and Lecture"]:
+        final_exam_weight = float(
+            DISCUSSION_AND_LECTURE_ASSIGNMENT_WEIGHTS["final_exam"] * 100
+        )
+    elif df["Used Discussion or Lecture"]:
+        final_exam_weight = float(
+            DISCUSSION_OR_LECTURE_ASSIGNMENT_WEIGHTS["final_exam"] * 100
+        )
     else:
-        final_exam_weight = int(ASSIGNMENT_WEIGHTS["final_exam"] * 100)
+        final_exam_weight = float(ASSIGNMENT_WEIGHTS["final_exam"] * 100)
     final_exam_score = df.loc["Final Average"]
-    output = [f"The Final Exam is worth {final_exam_weight}% of your grade."]
+
+    output = [f"The Final Exam is worth {final_exam_weight:.2f}% of your grade."]
     output = np.append(
         output,
         f'Score: {even_round_str(final_exam_score)} ({df.loc["Final Exam"]} / {df.loc["Final Exam - Max Points"]})',

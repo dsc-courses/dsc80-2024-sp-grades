@@ -39,8 +39,8 @@ exams:
     container_path: "../data/Final_Exam_Version_Set_Scores.zip"
 
 discussions:
-  num_discussions_attendence_required: 8
-  num_lecture_attendence_required: 16
+  num_discussions_attendence_required: 7
+  num_lecture_attendence_required: 14
 
 drop_policy:
   num_drops: 1
@@ -53,14 +53,23 @@ assignment_weights:
   project_checkpoint: 0.05
   midterm_exam: 0.20
   final_exam: 0.30
+  discussion: 0.00
 
-discussion_assignment_weights:
+discussion_or_lecture_assignment_weights:
   lab: 0.20
   project: 0.25
   project_checkpoint: 0.05
   midterm_exam: 0.175
   final_exam: 0.275
   discussion: 0.05
+
+discussion_and_lecture_assignment_weights:
+  lab: 0.20
+  project: 0.25
+  project_checkpoint: 0.05
+  midterm_exam: 0.15
+  final_exam: 0.25
+  discussion: 0.1
 
 extra_credit:
   overall: 0.00
